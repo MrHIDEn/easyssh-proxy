@@ -120,7 +120,56 @@ func main() {
 		fmt.Println("SFTP Directory and all contents removed successfully!")
 	}
 
-	// Example 10: Working with SFTP client directly for advanced operations
+	// Example 10: Get current working directory
+	fmt.Println("\n=== SFTP Get Working Directory Example ===")
+	wd, err := ssh.SftpGetwd()
+	if err != nil {
+		log.Printf("SFTP Getwd failed: %v", err)
+	} else {
+		fmt.Printf("Current working directory: %s\n", wd)
+	}
+
+	// Example 11: Rename/move a file
+	fmt.Println("\n=== SFTP Rename Example ===")
+	err = ssh.SftpRename("/remote/path/old_name.txt", "/remote/path/new_name.txt")
+	if err != nil {
+		log.Printf("SFTP Rename failed: %v", err)
+	} else {
+		fmt.Println("SFTP File renamed successfully!")
+	}
+
+	// Example 12: Change file ownership
+	fmt.Println("\n=== SFTP Change Ownership Example ===")
+	err = ssh.SftpChown("/remote/path/file.txt", 1000, 1000)
+	if err != nil {
+		log.Printf("SFTP Chown failed: %v", err)
+	} else {
+		fmt.Println("SFTP File ownership changed successfully!")
+	}
+
+	// Example 13: Change file times
+	fmt.Println("\n=== SFTP Change Times Example ===")
+	newTime := time.Now().Add(-24 * time.Hour)
+	err = ssh.SftpChtimes("/remote/path/file.txt", newTime, newTime)
+	if err != nil {
+		log.Printf("SFTP Chtimes failed: %v", err)
+	} else {
+		fmt.Println("SFTP File times changed successfully!")
+	}
+
+	// Example 14: Find files using glob pattern
+	fmt.Println("\n=== SFTP Glob Pattern Example ===")
+	matches, err := ssh.SftpGlob("/remote/path/*.txt")
+	if err != nil {
+		log.Printf("SFTP Glob failed: %v", err)
+	} else {
+		fmt.Printf("Found %d files matching pattern:\n", len(matches))
+		for _, match := range matches {
+			fmt.Printf("  %s\n", match)
+		}
+	}
+
+	// Example 15: Working with SFTP client directly for advanced operations
 	fmt.Println("\n=== SFTP Direct Client Example ===")
 	sftpClient, client, err := ssh.SftpClient()
 	if err != nil {

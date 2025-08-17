@@ -724,3 +724,75 @@ func TestSftpRemoveAll(t *testing.T) {
 	_, err = ssh.SftpStat(testDir)
 	assert.Error(t, err) // Should fail because directory was removed
 }
+
+func TestSftpAdvancedOperations(t *testing.T) {
+	ssh := &MakeConfig{
+		Server:  "localhost",
+		User:    "root",
+		Port:    "22",
+		KeyPath: "./tests/.ssh/id_rsa",
+	}
+
+	// Test Getwd
+	wd, err := ssh.SftpGetwd()
+	if err != nil {
+		t.Skipf("SFTP getwd failed (this is expected if SSH server doesn't support SFTP): %v", err)
+		return
+	}
+	assert.NotEmpty(t, wd)
+	t.Logf("Current working directory: %s", wd)
+
+	// Create test file for advanced operations
+	testContent := "Advanced SFTP operations test"
+	localFile := "./tests/sftp_advanced_test.txt"
+	remoteFile := "/tmp/sftp_advanced_test.txt"
+	remoteFileRenamed := "/tmp/sftp_advanced_renamed.txt"
+
+	// Create local test file
+	err = os.WriteFile(localFile, []byte(testContent), 0644)
+	assert.NoError(t, err)
+	defer os.Remove(localFile)
+
+	// Upload file
+	err = ssh.SftpUpload(localFile, remoteFile)
+	assert.NoError(t, err)
+
+	// Test Chown (note: this might fail on some systems due to permissions)
+	err = ssh.SftpChown(remoteFile, 1000, 1000)
+	if err != nil {
+		t.Logf("Chown failed (expected on some systems): %v", err)
+	}
+
+	// Test Chtimes
+	newTime := time.Now().Add(-24 * time.Hour)
+	err = ssh.SftpChtimes(remoteFile, newTime, newTime)
+	assert.NoError(t, err)
+
+	// Verify time change
+	fileInfo, err := ssh.SftpStat(remoteFile)
+	assert.NoError(t, err)
+	// Note: exact time comparison might vary due to filesystem precision
+	assert.True(t, fileInfo.ModTime().Before(time.Now().Add(-23*time.Hour)))
+
+	// Test Rename
+	err = ssh.SftpRename(remoteFile, remoteFileRenamed)
+	assert.NoError(t, err)
+
+	// Verify old file doesn't exist
+	_, err = ssh.SftpStat(remoteFile)
+	assert.Error(t, err)
+
+	// Verify new file exists
+	fileInfo, err = ssh.SftpStat(remoteFileRenamed)
+	assert.NoError(t, err)
+	assert.Equal(t, "sftp_advanced_renamed.txt", fileInfo.Name())
+
+	// Test Glob
+	matches, err := ssh.SftpGlob("/tmp/sftp_advanced_*")
+	assert.NoError(t, err)
+	assert.Contains(t, matches, remoteFileRenamed)
+
+	// Cleanup
+	err = ssh.SftpRemove(remoteFileRenamed)
+	assert.NoError(t, err)
+}

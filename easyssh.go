@@ -698,3 +698,73 @@ func (ssh_conf *MakeConfig) SftpChmod(remotePath string, mode os.FileMode) error
 	err = sftpClient.Chmod(remotePath, mode)
 	return err
 }
+
+// SftpChown changes the owner and group of a file or directory on the remote server
+func (ssh_conf *MakeConfig) SftpChown(remotePath string, uid, gid int) error {
+	sftpClient, client, err := ssh_conf.SftpClient()
+	if err != nil {
+		return err
+	}
+	defer client.Close()
+	defer sftpClient.Close()
+
+	// Change file ownership
+	err = sftpClient.Chown(remotePath, uid, gid)
+	return err
+}
+
+// SftpChtimes changes the access and modification times of a file on the remote server
+func (ssh_conf *MakeConfig) SftpChtimes(remotePath string, atime, mtime time.Time) error {
+	sftpClient, client, err := ssh_conf.SftpClient()
+	if err != nil {
+		return err
+	}
+	defer client.Close()
+	defer sftpClient.Close()
+
+	// Change file times
+	err = sftpClient.Chtimes(remotePath, atime, mtime)
+	return err
+}
+
+// SftpGetwd returns the current working directory on the remote server
+func (ssh_conf *MakeConfig) SftpGetwd() (string, error) {
+	sftpClient, client, err := ssh_conf.SftpClient()
+	if err != nil {
+		return "", err
+	}
+	defer client.Close()
+	defer sftpClient.Close()
+
+	// Get current working directory
+	wd, err := sftpClient.Getwd()
+	return wd, err
+}
+
+// SftpRename renames or moves a file or directory on the remote server
+func (ssh_conf *MakeConfig) SftpRename(oldPath, newPath string) error {
+	sftpClient, client, err := ssh_conf.SftpClient()
+	if err != nil {
+		return err
+	}
+	defer client.Close()
+	defer sftpClient.Close()
+
+	// Rename/move file or directory
+	err = sftpClient.Rename(oldPath, newPath)
+	return err
+}
+
+// SftpGlob returns the names of all files matching pattern on the remote server
+func (ssh_conf *MakeConfig) SftpGlob(pattern string) ([]string, error) {
+	sftpClient, client, err := ssh_conf.SftpClient()
+	if err != nil {
+		return nil, err
+	}
+	defer client.Close()
+	defer sftpClient.Close()
+
+	// Find files matching pattern
+	matches, err := sftpClient.Glob(pattern)
+	return matches, err
+}

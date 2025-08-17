@@ -94,7 +94,7 @@ import (
 func main() {
   // Create MakeConfig instance with remote username, server address and path to private key.
   ssh := &easyssh.MakeConfig{
-    User:   "appleboy",
+    User:   "easyssh",
     Server: "example.com",
     // Optional key or Password without either we try to contact your agent SOCKET
     // Password: "password",
@@ -154,7 +154,7 @@ import (
 func main() {
   // Create MakeConfig instance with remote username, server address and path to private key.
   ssh := &easyssh.MakeConfig{
-    User:     "appleboy",
+    User:     "easyssh",
     Server:   "example.com",
     Password: "123qwe",
     Port:     "22",
@@ -194,7 +194,7 @@ import (
 func main() {
   // Create MakeConfig instance with remote username, server address and path to private key.
   ssh := &easyssh.MakeConfig{
-    User:   "appleboy",
+    User:   "easyssh",
     Server: "example.com",
     KeyPath: "/Users/username/.ssh/id_rsa",
     Port:    "22",
@@ -268,6 +268,41 @@ func main() {
     log.Printf("SFTP RemoveAll failed: %v", err)
   }
 
+  // Get current working directory
+  wd, err := ssh.SftpGetwd()
+  if err != nil {
+    log.Printf("SFTP Getwd failed: %v", err)
+  } else {
+    fmt.Printf("Current directory: %s\n", wd)
+  }
+
+  // Rename/move a file
+  err = ssh.SftpRename("/remote/old_name.txt", "/remote/new_name.txt")
+  if err != nil {
+    log.Printf("SFTP Rename failed: %v", err)
+  }
+
+  // Change file ownership
+  err = ssh.SftpChown("/remote/path/file.txt", 1000, 1000)
+  if err != nil {
+    log.Printf("SFTP Chown failed: %v", err)
+  }
+
+  // Change file times
+  newTime := time.Now().Add(-24 * time.Hour)
+  err = ssh.SftpChtimes("/remote/path/file.txt", newTime, newTime)
+  if err != nil {
+    log.Printf("SFTP Chtimes failed: %v", err)
+  }
+
+  // Find files using glob pattern
+  matches, err := ssh.SftpGlob("/remote/path/*.txt")
+  if err != nil {
+    log.Printf("SFTP Glob failed: %v", err)
+  } else {
+    fmt.Printf("Found %d files\n", len(matches))
+  }
+
   // Working with SFTP client directly for advanced operations
   sftpClient, client, err := ssh.SftpClient()
   if err != nil {
@@ -302,6 +337,11 @@ func main() {
 | `SftpRemoveAll(remotePath)` | Removes a file or directory and all its contents recursively |
 | `SftpStat(remotePath)` | Returns file information for the specified remote path |
 | `SftpChmod(remotePath, mode)` | Changes the permissions of a file or directory |
+| `SftpChown(remotePath, uid, gid)` | Changes the owner and group of a file or directory |
+| `SftpChtimes(remotePath, atime, mtime)` | Changes the access and modification times of a file |
+| `SftpGetwd()` | Returns the current working directory on the remote server |
+| `SftpRename(oldPath, newPath)` | Renames or moves a file or directory |
+| `SftpGlob(pattern)` | Returns names of all files matching pattern |
 
 ### SSH ProxyCommand
 
