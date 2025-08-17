@@ -653,6 +653,20 @@ func (ssh_conf *MakeConfig) SftpRemove(remotePath string) error {
 	return err
 }
 
+// SftpRemoveAll removes a file or directory and all its contents recursively from the remote server
+func (ssh_conf *MakeConfig) SftpRemoveAll(remotePath string) error {
+	sftpClient, client, err := ssh_conf.SftpClient()
+	if err != nil {
+		return err
+	}
+	defer client.Close()
+	defer sftpClient.Close()
+
+	// Remove file or directory recursively
+	err = sftpClient.RemoveAll(remotePath)
+	return err
+}
+
 // SftpStat returns file information for the specified remote path
 func (ssh_conf *MakeConfig) SftpStat(remotePath string) (os.FileInfo, error) {
 	sftpClient, client, err := ssh_conf.SftpClient()

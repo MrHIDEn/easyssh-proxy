@@ -676,3 +676,51 @@ func TestSftpFileOperations(t *testing.T) {
 	err = ssh.SftpRemove(remoteFile)
 	assert.NoError(t, err)
 }
+
+func TestSftpRemoveAll(t *testing.T) {
+	ssh := &MakeConfig{
+		Server:  "localhost",
+		User:    "root",
+		Port:    "22",
+		KeyPath: "./tests/.ssh/id_rsa",
+	}
+
+	// Create test directory structure
+	testDir := "/tmp/sftp_removeall_test"
+	subDir := testDir + "/subdir"
+	testFile1 := testDir + "/file1.txt"
+	testFile2 := subDir + "/file2.txt"
+
+	// Create directories
+	err := ssh.SftpMkdirAll(subDir)
+	if err != nil {
+		t.Skipf("SFTP mkdir failed (this is expected if SSH server doesn't support SFTP): %v", err)
+		return
+	}
+
+	// Create test files
+	testContent := "test content for removeall"
+	localFile := "./tests/sftp_removeall_temp.txt"
+	err = os.WriteFile(localFile, []byte(testContent), 0644)
+	assert.NoError(t, err)
+	defer os.Remove(localFile)
+
+	// Upload files to test directory structure
+	err = ssh.SftpUpload(localFile, testFile1)
+	assert.NoError(t, err)
+	err = ssh.SftpUpload(localFile, testFile2)
+	assert.NoError(t, err)
+
+	// Verify structure exists
+	fileInfo, err := ssh.SftpStat(testDir)
+	assert.NoError(t, err)
+	assert.True(t, fileInfo.IsDir())
+
+	// Test RemoveAll - should remove entire directory tree
+	err = ssh.SftpRemoveAll(testDir)
+	assert.NoError(t, err)
+
+	// Verify directory no longer exists
+	_, err = ssh.SftpStat(testDir)
+	assert.Error(t, err) // Should fail because directory was removed
+}

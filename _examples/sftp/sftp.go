@@ -111,7 +111,16 @@ func main() {
 		fmt.Println("SFTP File removed successfully!")
 	}
 
-	// Example 9: Working with SFTP client directly for advanced operations
+	// Example 9: Remove directory and all its contents recursively
+	fmt.Println("\n=== SFTP Remove All Example ===")
+	err = ssh.SftpRemoveAll("/remote/path/directory_to_delete")
+	if err != nil {
+		log.Printf("SFTP RemoveAll failed: %v", err)
+	} else {
+		fmt.Println("SFTP Directory and all contents removed successfully!")
+	}
+
+	// Example 10: Working with SFTP client directly for advanced operations
 	fmt.Println("\n=== SFTP Direct Client Example ===")
 	sftpClient, client, err := ssh.SftpClient()
 	if err != nil {

@@ -262,6 +262,12 @@ func main() {
     log.Printf("SFTP Remove failed: %v", err)
   }
 
+  // Remove directory and all its contents recursively
+  err = ssh.SftpRemoveAll("/remote/path/directory_to_delete")
+  if err != nil {
+    log.Printf("SFTP RemoveAll failed: %v", err)
+  }
+
   // Working with SFTP client directly for advanced operations
   sftpClient, client, err := ssh.SftpClient()
   if err != nil {
@@ -293,6 +299,7 @@ func main() {
 | `SftpMkdir(remotePath)` | Creates a directory on the remote server |
 | `SftpMkdirAll(remotePath)` | Creates a directory and all necessary parent directories |
 | `SftpRemove(remotePath)` | Removes a file or directory from the remote server |
+| `SftpRemoveAll(remotePath)` | Removes a file or directory and all its contents recursively |
 | `SftpStat(remotePath)` | Returns file information for the specified remote path |
 | `SftpChmod(remotePath, mode)` | Changes the permissions of a file or directory |
 
