@@ -50,7 +50,7 @@ func TestRunCommandWithFingerprint(t *testing.T) {
 	// wrong fingerprint
 	sshConf := &MakeConfig{
 		Server:      "localhost",
-		User:        "drone-scp",
+		User:        "test-user",
 		Port:        "22",
 		KeyPath:     "./tests/.ssh/id_rsa",
 		Fingerprint: "wrong",
@@ -67,14 +67,14 @@ func TestRunCommandWithFingerprint(t *testing.T) {
 
 	sshConf = &MakeConfig{
 		Server:      "localhost",
-		User:        "drone-scp",
+		User:        "test-user",
 		Port:        "22",
 		KeyPath:     "./tests/.ssh/id_rsa",
 		Fingerprint: ssh.FingerprintSHA256(hostKey),
 	}
 
 	outStr, errStr, isTimeout, err = sshConf.Run("whoami")
-	assert.Equal(t, "drone-scp\n", outStr)
+	assert.Equal(t, "test-user\n", outStr)
 	assert.Equal(t, "", errStr)
 	assert.True(t, isTimeout)
 	assert.NoError(t, err)
@@ -84,14 +84,14 @@ func TestPrivateKeyAndPassword(t *testing.T) {
 	// provide password and ssh private key
 	ssh := &MakeConfig{
 		Server:   "localhost",
-		User:     "drone-scp",
+		User:     "test-user",
 		Port:     "22",
 		Password: "1234",
 		KeyPath:  "./tests/.ssh/id_rsa",
 	}
 
 	outStr, errStr, isTimeout, err := ssh.Run("whoami")
-	assert.Equal(t, "drone-scp\n", outStr)
+	assert.Equal(t, "test-user\n", outStr)
 	assert.Equal(t, "", errStr)
 	assert.True(t, isTimeout)
 	assert.NoError(t, err)
@@ -99,14 +99,14 @@ func TestPrivateKeyAndPassword(t *testing.T) {
 	// provide correct password and wrong private key
 	ssh = &MakeConfig{
 		Server:   "localhost",
-		User:     "drone-scp",
+		User:     "test-user",
 		Port:     "22",
 		Password: "1234",
 		KeyPath:  "./tests/.ssh/id_rsa.pub",
 	}
 
 	outStr, errStr, isTimeout, err = ssh.Run("whoami")
-	assert.Equal(t, "drone-scp\n", outStr)
+	assert.Equal(t, "test-user\n", outStr)
 	assert.Equal(t, "", errStr)
 	assert.True(t, isTimeout)
 	assert.NoError(t, err)
@@ -114,14 +114,14 @@ func TestPrivateKeyAndPassword(t *testing.T) {
 	// provide wrong password and correct private key
 	ssh = &MakeConfig{
 		Server:   "localhost",
-		User:     "drone-scp",
+		User:     "test-user",
 		Port:     "22",
 		Password: "123456",
 		KeyPath:  "./tests/.ssh/id_rsa",
 	}
 
 	outStr, errStr, isTimeout, err = ssh.Run("whoami")
-	assert.Equal(t, "drone-scp\n", outStr)
+	assert.Equal(t, "test-user\n", outStr)
 	assert.Equal(t, "", errStr)
 	assert.True(t, isTimeout)
 	assert.NoError(t, err)
@@ -131,7 +131,7 @@ func TestRunCommand(t *testing.T) {
 	// wrong key
 	ssh := &MakeConfig{
 		Server:  "localhost",
-		User:    "drone-scp",
+		User:    "test-user",
 		Port:    "22",
 		KeyPath: "./tests/.ssh/id_rsa.pub",
 	}
@@ -144,13 +144,13 @@ func TestRunCommand(t *testing.T) {
 
 	ssh = &MakeConfig{
 		Server:  "localhost",
-		User:    "drone-scp",
+		User:    "test-user",
 		Port:    "22",
 		KeyPath: "./tests/.ssh/id_rsa",
 	}
 
 	outStr, errStr, isTimeout, err = ssh.Run("whoami")
-	assert.Equal(t, "drone-scp\n", outStr)
+	assert.Equal(t, "test-user\n", outStr)
 	assert.Equal(t, "", errStr)
 	assert.True(t, isTimeout)
 	assert.NoError(t, err)
@@ -184,7 +184,7 @@ func TestSCPCommand(t *testing.T) {
 	// wrong key
 	ssh := &MakeConfig{
 		Server:  "localhost",
-		User:    "drone-scp",
+		User:    "test-user",
 		Port:    "22",
 		KeyPath: "./tests/.ssh/id_rsa.pub",
 	}
@@ -194,7 +194,7 @@ func TestSCPCommand(t *testing.T) {
 
 	ssh = &MakeConfig{
 		Server:  "localhost",
-		User:    "drone-scp",
+		User:    "test-user",
 		Port:    "22",
 		KeyPath: "./tests/.ssh/id_rsa",
 	}
@@ -202,7 +202,7 @@ func TestSCPCommand(t *testing.T) {
 	err = ssh.Scp("./tests/a.txt", "a.txt")
 	assert.NoError(t, err)
 
-	u, err := user.Lookup("drone-scp")
+	u, err := user.Lookup("test-user")
 	if err != nil {
 		t.Fatalf("Lookup: %v", err)
 	}
@@ -216,7 +216,7 @@ func TestSCPCommand(t *testing.T) {
 func TestSCPCommandWithKey(t *testing.T) {
 	ssh := &MakeConfig{
 		Server: "localhost",
-		User:   "drone-scp",
+		User:   "test-user",
 		Port:   "22",
 		Key: `-----BEGIN RSA PRIVATE KEY-----
 MIIEpAIBAAKCAQEA4e2D/qPN08pzTac+a8ZmlP1ziJOXk45CynMPtva0rtK/RB26
@@ -253,13 +253,13 @@ ib4KbP5ovZlrjL++akMQ7V2fHzuQIFWnCkDA5c2ZAqzlM+ZN+HRG7gWur7Bt4XH1
 	assert.Error(t, err)
 
 	// target file not found ex: appleboy folder not found
-	err = ssh.Scp("./tests/a.txt", "/appleboy/a.txt")
+	err = ssh.Scp("./tests/a.txt", "/easyssh/a.txt")
 	assert.Error(t, err)
 
 	err = ssh.Scp("./tests/a.txt", "a.txt")
 	assert.NoError(t, err)
 
-	u, err := user.Lookup("drone-scp")
+	u, err := user.Lookup("test-user")
 	if err != nil {
 		t.Fatalf("Lookup: %v", err)
 	}
@@ -273,11 +273,11 @@ ib4KbP5ovZlrjL++akMQ7V2fHzuQIFWnCkDA5c2ZAqzlM+ZN+HRG7gWur7Bt4XH1
 func TestProxyClient(t *testing.T) {
 	ssh := &MakeConfig{
 		Server:   "localhost",
-		User:     "drone-scp",
+		User:     "test-user",
 		Port:     "22",
 		Password: "1234",
 		Proxy: DefaultConfig{
-			User:     "drone-scp",
+			User:     "test-user",
 			Server:   "localhost",
 			Port:     "22",
 			Password: "123456",
@@ -293,11 +293,11 @@ func TestProxyClient(t *testing.T) {
 
 	ssh = &MakeConfig{
 		Server:   "www.che.ccu.edu.tw",
-		User:     "drone-scp",
+		User:     "test-user",
 		Port:     "228",
 		Password: "123456",
 		Proxy: DefaultConfig{
-			User:    "drone-scp",
+			User:    "test-user",
 			Server:  "localhost",
 			Port:    "22",
 			KeyPath: "./tests/.ssh/id_rsa",
@@ -312,11 +312,11 @@ func TestProxyClient(t *testing.T) {
 
 	ssh = &MakeConfig{
 		Server:   "localhost",
-		User:     "drone-scp",
+		User:     "test-user",
 		Port:     "22",
 		Password: "123456",
 		Proxy: DefaultConfig{
-			User:    "drone-scp",
+			User:    "test-user",
 			Server:  "localhost",
 			Port:    "22",
 			KeyPath: "./tests/.ssh/id_rsa",
@@ -330,12 +330,12 @@ func TestProxyClient(t *testing.T) {
 	assert.Error(t, err)
 
 	ssh = &MakeConfig{
-		User:    "drone-scp",
+		User:    "test-user",
 		Server:  "localhost",
 		Port:    "22",
 		KeyPath: "./tests/.ssh/id_rsa",
 		Proxy: DefaultConfig{
-			User:    "drone-scp",
+			User:    "test-user",
 			Server:  "localhost",
 			Port:    "22",
 			KeyPath: "./tests/.ssh/id_rsa",
@@ -350,12 +350,12 @@ func TestProxyClient(t *testing.T) {
 
 func TestProxyClientSSHCommand(t *testing.T) {
 	ssh := &MakeConfig{
-		User:    "drone-scp",
+		User:    "test-user",
 		Server:  "localhost",
 		Port:    "22",
 		KeyPath: "./tests/.ssh/id_rsa",
 		Proxy: DefaultConfig{
-			User:    "drone-scp",
+			User:    "test-user",
 			Server:  "localhost",
 			Port:    "22",
 			KeyPath: "./tests/.ssh/id_rsa",
@@ -363,7 +363,7 @@ func TestProxyClientSSHCommand(t *testing.T) {
 	}
 
 	outStr, errStr, isTimeout, err := ssh.Run("whoami")
-	assert.Equal(t, "drone-scp\n", outStr)
+	assert.Equal(t, "test-user\n", outStr)
 	assert.Equal(t, "", errStr)
 	assert.True(t, isTimeout)
 	assert.NoError(t, err)
@@ -372,7 +372,7 @@ func TestProxyClientSSHCommand(t *testing.T) {
 func TestSCPCommandWithPassword(t *testing.T) {
 	ssh := &MakeConfig{
 		Server:   "localhost",
-		User:     "drone-scp",
+		User:     "test-user",
 		Port:     "22",
 		Password: "1234",
 		Timeout:  60 * time.Second,
@@ -381,7 +381,7 @@ func TestSCPCommandWithPassword(t *testing.T) {
 	err := ssh.Scp("./tests/b.txt", "b.txt")
 	assert.NoError(t, err)
 
-	u, err := user.Lookup("drone-scp")
+	u, err := user.Lookup("test-user")
 	if err != nil {
 		t.Fatalf("Lookup: %v", err)
 	}
@@ -396,9 +396,9 @@ func TestWrongRawKey(t *testing.T) {
 	// wrong key
 	ssh := &MakeConfig{
 		Server: "localhost",
-		User:   "drone-scp",
+		User:   "test-user",
 		Port:   "22",
-		Key:    "appleboy",
+		Key:    "wrongkey",
 	}
 
 	outStr, errStr, isTimeout, err := ssh.Run("whoami")
@@ -411,7 +411,7 @@ func TestWrongRawKey(t *testing.T) {
 func TestExitCode(t *testing.T) {
 	ssh := &MakeConfig{
 		Server:  "localhost",
-		User:    "drone-scp",
+		User:    "test-user",
 		Port:    "22",
 		KeyPath: "./tests/.ssh/id_rsa",
 		Timeout: 60 * time.Second,
@@ -427,7 +427,7 @@ func TestExitCode(t *testing.T) {
 func TestSSHWithPassphrase(t *testing.T) {
 	ssh := &MakeConfig{
 		Server:     "localhost",
-		User:       "drone-scp",
+		User:       "test-user",
 		Port:       "22",
 		KeyPath:    "./tests/.ssh/test",
 		Passphrase: "1234",
@@ -444,7 +444,7 @@ func TestSSHWithPassphrase(t *testing.T) {
 func TestSCPCommandUseInsecureCipher(t *testing.T) {
 	ssh := &MakeConfig{
 		Server:            "localhost",
-		User:              "drone-scp",
+		User:              "test-user",
 		Port:              "22",
 		KeyPath:           "./tests/.ssh/id_rsa",
 		UseInsecureCipher: true,
@@ -453,7 +453,7 @@ func TestSCPCommandUseInsecureCipher(t *testing.T) {
 	err := ssh.Scp("./tests/a.txt", "a.txt")
 	assert.NoError(t, err)
 
-	u, err := user.Lookup("drone-scp")
+	u, err := user.Lookup("test-user")
 	if err != nil {
 		t.Fatalf("Lookup: %v", err)
 	}
@@ -484,7 +484,7 @@ func TestRootAccount(t *testing.T) {
 func TestSudoCommand(t *testing.T) {
 	ssh := &MakeConfig{
 		Server:     "localhost",
-		User:       "drone-scp",
+		User:       "test-user",
 		Port:       "22",
 		KeyPath:    "./tests/.ssh/id_rsa",
 		RequestPty: true,
@@ -511,4 +511,288 @@ func TestCommandTimeout(t *testing.T) {
 	assert.False(t, isTimeout)
 	assert.NotNil(t, err)
 	assert.Equal(t, "Run Command Timeout: "+context.DeadlineExceeded.Error(), err.Error())
+}
+
+func TestSftpClient(t *testing.T) {
+	ssh := &MakeConfig{
+		Server:  "localhost",
+		User:    "root",
+		Port:    "22",
+		KeyPath: "./tests/.ssh/id_rsa",
+	}
+
+	sftpClient, client, err := ssh.SftpClient()
+	if err != nil {
+		t.Skipf("SFTP connection failed (this is expected if SSH server doesn't support SFTP): %v", err)
+		return
+	}
+	defer client.Close()
+	defer sftpClient.Close()
+
+	assert.NotNil(t, sftpClient)
+	assert.NotNil(t, client)
+}
+
+func TestSftpUploadDownload(t *testing.T) {
+	ssh := &MakeConfig{
+		Server:  "localhost",
+		User:    "root",
+		Port:    "22",
+		KeyPath: "./tests/.ssh/id_rsa",
+	}
+
+	// Create a test file
+	testContent := "Hello SFTP World!"
+	localFile := "./tests/sftp_test_upload.txt"
+	remoteFile := "/tmp/sftp_test_remote.txt"
+	downloadFile := "./tests/sftp_test_download.txt"
+
+	// Create local test file
+	err := os.WriteFile(localFile, []byte(testContent), 0o644)
+	assert.NoError(t, err)
+	defer os.Remove(localFile)
+	defer os.Remove(downloadFile)
+
+	// Test upload
+	err = ssh.SftpUpload(localFile, remoteFile)
+	if err != nil {
+		t.Skipf("SFTP upload failed (this is expected if SSH server doesn't support SFTP): %v", err)
+		return
+	}
+
+	// Test download
+	err = ssh.SftpDownload(remoteFile, downloadFile)
+	assert.NoError(t, err)
+
+	// Verify content
+	downloadedContent, err := os.ReadFile(downloadFile)
+	assert.NoError(t, err)
+	assert.Equal(t, testContent, string(downloadedContent))
+
+	// Cleanup remote file
+	err = ssh.SftpRemove(remoteFile)
+	assert.NoError(t, err)
+}
+
+func TestSftpDirectoryOperations(t *testing.T) {
+	ssh := &MakeConfig{
+		Server:  "localhost",
+		User:    "root",
+		Port:    "22",
+		KeyPath: "./tests/.ssh/id_rsa",
+	}
+
+	testDir := "/tmp/sftp_test_dir"
+	nestedDir := "/tmp/sftp_test_nested/sub1/sub2"
+
+	// Test create directory
+	err := ssh.SftpMkdir(testDir)
+	if err != nil {
+		t.Skipf("SFTP mkdir failed (this is expected if SSH server doesn't support SFTP): %v", err)
+		return
+	}
+
+	// Test create nested directories
+	err = ssh.SftpMkdirAll(nestedDir)
+	assert.NoError(t, err)
+
+	// Test list directory (should contain our test directory)
+	fileInfos, err := ssh.SftpList("/tmp")
+	assert.NoError(t, err)
+	assert.NotEmpty(t, fileInfos)
+
+	// Check if our test directory exists in the list
+	found := false
+	for _, info := range fileInfos {
+		if info.Name() == "sftp_test_dir" && info.IsDir() {
+			found = true
+			break
+		}
+	}
+	assert.True(t, found, "Test directory should be found in listing")
+
+	// Test stat on directory
+	dirInfo, err := ssh.SftpStat(testDir)
+	assert.NoError(t, err)
+	assert.True(t, dirInfo.IsDir())
+	assert.Equal(t, "sftp_test_dir", dirInfo.Name())
+
+	// Cleanup
+	err = ssh.SftpRemove(testDir)
+	assert.NoError(t, err)
+
+	// Cleanup nested directories (remove from deepest to shallowest)
+	err = ssh.SftpRemove(nestedDir)
+	assert.NoError(t, err)
+	err = ssh.SftpRemove("/tmp/sftp_test_nested/sub1")
+	assert.NoError(t, err)
+	err = ssh.SftpRemove("/tmp/sftp_test_nested")
+	assert.NoError(t, err)
+}
+
+func TestSftpFileOperations(t *testing.T) {
+	ssh := &MakeConfig{
+		Server:  "localhost",
+		User:    "root",
+		Port:    "22",
+		KeyPath: "./tests/.ssh/id_rsa",
+	}
+
+	// Create a test file for operations
+	testContent := "SFTP file operations test"
+	localFile := "./tests/sftp_ops_test.txt"
+	remoteFile := "/tmp/sftp_ops_test.txt"
+
+	// Create local test file
+	err := os.WriteFile(localFile, []byte(testContent), 0o644)
+	assert.NoError(t, err)
+	defer os.Remove(localFile)
+
+	// Upload file
+	err = ssh.SftpUpload(localFile, remoteFile)
+	if err != nil {
+		t.Skipf("SFTP upload failed (this is expected if SSH server doesn't support SFTP): %v", err)
+		return
+	}
+
+	// Test file stat
+	fileInfo, err := ssh.SftpStat(remoteFile)
+	assert.NoError(t, err)
+	assert.False(t, fileInfo.IsDir())
+	assert.Equal(t, "sftp_ops_test.txt", fileInfo.Name())
+	assert.Equal(t, int64(len(testContent)), fileInfo.Size())
+
+	// Test chmod
+	err = ssh.SftpChmod(remoteFile, 0o755)
+	assert.NoError(t, err)
+
+	// Verify permissions changed (note: exact permission checking may vary by system)
+	fileInfo, err = ssh.SftpStat(remoteFile)
+	assert.NoError(t, err)
+	// The mode should include the new permissions
+	assert.NotEqual(t, os.FileMode(0o644), fileInfo.Mode().Perm())
+
+	// Cleanup
+	err = ssh.SftpRemove(remoteFile)
+	assert.NoError(t, err)
+}
+
+func TestSftpRemoveAll(t *testing.T) {
+	ssh := &MakeConfig{
+		Server:  "localhost",
+		User:    "root",
+		Port:    "22",
+		KeyPath: "./tests/.ssh/id_rsa",
+	}
+
+	// Create test directory structure
+	testDir := "/tmp/sftp_removeall_test"
+	subDir := testDir + "/subdir"
+	testFile1 := testDir + "/file1.txt"
+	testFile2 := subDir + "/file2.txt"
+
+	// Create directories
+	err := ssh.SftpMkdirAll(subDir)
+	if err != nil {
+		t.Skipf("SFTP mkdir failed (this is expected if SSH server doesn't support SFTP): %v", err)
+		return
+	}
+
+	// Create test files
+	testContent := "test content for removeall"
+	localFile := "./tests/sftp_removeall_temp.txt"
+	err = os.WriteFile(localFile, []byte(testContent), 0644)
+	assert.NoError(t, err)
+	defer os.Remove(localFile)
+
+	// Upload files to test directory structure
+	err = ssh.SftpUpload(localFile, testFile1)
+	assert.NoError(t, err)
+	err = ssh.SftpUpload(localFile, testFile2)
+	assert.NoError(t, err)
+
+	// Verify structure exists
+	fileInfo, err := ssh.SftpStat(testDir)
+	assert.NoError(t, err)
+	assert.True(t, fileInfo.IsDir())
+
+	// Test RemoveAll - should remove entire directory tree
+	err = ssh.SftpRemoveAll(testDir)
+	assert.NoError(t, err)
+
+	// Verify directory no longer exists
+	_, err = ssh.SftpStat(testDir)
+	assert.Error(t, err) // Should fail because directory was removed
+}
+
+func TestSftpAdvancedOperations(t *testing.T) {
+	ssh := &MakeConfig{
+		Server:  "localhost",
+		User:    "root",
+		Port:    "22",
+		KeyPath: "./tests/.ssh/id_rsa",
+	}
+
+	// Test Getwd
+	wd, err := ssh.SftpGetwd()
+	if err != nil {
+		t.Skipf("SFTP getwd failed (this is expected if SSH server doesn't support SFTP): %v", err)
+		return
+	}
+	assert.NotEmpty(t, wd)
+	t.Logf("Current working directory: %s", wd)
+
+	// Create test file for advanced operations
+	testContent := "Advanced SFTP operations test"
+	localFile := "./tests/sftp_advanced_test.txt"
+	remoteFile := "/tmp/sftp_advanced_test.txt"
+	remoteFileRenamed := "/tmp/sftp_advanced_renamed.txt"
+
+	// Create local test file
+	err = os.WriteFile(localFile, []byte(testContent), 0644)
+	assert.NoError(t, err)
+	defer os.Remove(localFile)
+
+	// Upload file
+	err = ssh.SftpUpload(localFile, remoteFile)
+	assert.NoError(t, err)
+
+	// Test Chown (note: this might fail on some systems due to permissions)
+	err = ssh.SftpChown(remoteFile, 1000, 1000)
+	if err != nil {
+		t.Logf("Chown failed (expected on some systems): %v", err)
+	}
+
+	// Test Chtimes
+	newTime := time.Now().Add(-24 * time.Hour)
+	err = ssh.SftpChtimes(remoteFile, newTime, newTime)
+	assert.NoError(t, err)
+
+	// Verify time change
+	fileInfo, err := ssh.SftpStat(remoteFile)
+	assert.NoError(t, err)
+	// Note: exact time comparison might vary due to filesystem precision
+	assert.True(t, fileInfo.ModTime().Before(time.Now().Add(-23*time.Hour)))
+
+	// Test Rename
+	err = ssh.SftpRename(remoteFile, remoteFileRenamed)
+	assert.NoError(t, err)
+
+	// Verify old file doesn't exist
+	_, err = ssh.SftpStat(remoteFile)
+	assert.Error(t, err)
+
+	// Verify new file exists
+	fileInfo, err = ssh.SftpStat(remoteFileRenamed)
+	assert.NoError(t, err)
+	assert.Equal(t, "sftp_advanced_renamed.txt", fileInfo.Name())
+
+	// Test Glob
+	matches, err := ssh.SftpGlob("/tmp/sftp_advanced_*")
+	assert.NoError(t, err)
+	assert.Contains(t, matches, remoteFileRenamed)
+
+	// Cleanup
+	err = ssh.SftpRemove(remoteFileRenamed)
+	assert.NoError(t, err)
 }

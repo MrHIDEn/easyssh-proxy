@@ -4,13 +4,13 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/appleboy/easyssh-proxy"
+	"github.com/MrHIDEn/easyssh-proxy"
 )
 
 func main() {
 	// Create MakeConfig instance with remote username, server address and path to private key.
 	ssh := &easyssh.MakeConfig{
-		User:   "appleboy",
+		User:   "easyssh",
 		Server: "example.com",
 		// Optional key or Password without either we try to contact your agent SOCKET
 		// Password: "password",

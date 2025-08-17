@@ -1,2 +1,2 @@
 Defaults        requiretty
-drone-scp ALL=(ALL) NOPASSWD:ALL
+test-user ALL=(ALL) NOPASSWD:ALL
