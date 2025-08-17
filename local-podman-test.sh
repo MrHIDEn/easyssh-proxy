@@ -19,7 +19,7 @@ echo "--- Using directory: $CURRENT_DIR ---"
 
 # Run the container, map the correctly resolved directory, and then execute the tests
 # The container will be automatically removed upon completion thanks to the --rm flag
-podman run --rm -v "$CURRENT_DIR:/app" -w //app golang:1.23-alpine sh -c "apk add --update git make && make ssh-server && make test"
 # podman run --rm -v "$(pwd):/app" -w "/app" golang:1.23-alpine sh -c "apk add --update git make && make ssh-server && make test"
+podman run --rm -v "$CURRENT_DIR:/app" -w //app golang:1.23-alpine sh -c "apk add --update git make && make ssh-server && make test"
 
 echo "--- Tests finished ---"
