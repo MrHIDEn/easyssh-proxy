@@ -9,7 +9,7 @@ import (
 func main() {
 	// Create MakeConfig instance with remote username, server address and path to private key.
 	ssh := &easyssh.MakeConfig{
-		User:     "appleboy",
+		User:     "easyssh",
 		Server:   "example.com",
 		Password: "123qwe",
 		Port:     "22",
