@@ -50,7 +50,7 @@ func TestRunCommandWithFingerprint(t *testing.T) {
 	// wrong fingerprint
 	sshConf := &MakeConfig{
 		Server:      "localhost",
-		User:        "drone-scp",
+		User:        "test-user",
 		Port:        "22",
 		KeyPath:     "./tests/.ssh/id_rsa",
 		Fingerprint: "wrong",
@@ -67,14 +67,14 @@ func TestRunCommandWithFingerprint(t *testing.T) {
 
 	sshConf = &MakeConfig{
 		Server:      "localhost",
-		User:        "drone-scp",
+		User:        "test-user",
 		Port:        "22",
 		KeyPath:     "./tests/.ssh/id_rsa",
 		Fingerprint: ssh.FingerprintSHA256(hostKey),
 	}
 
 	outStr, errStr, isTimeout, err = sshConf.Run("whoami")
-	assert.Equal(t, "drone-scp\n", outStr)
+	assert.Equal(t, "test-user\n", outStr)
 	assert.Equal(t, "", errStr)
 	assert.True(t, isTimeout)
 	assert.NoError(t, err)
@@ -84,14 +84,14 @@ func TestPrivateKeyAndPassword(t *testing.T) {
 	// provide password and ssh private key
 	ssh := &MakeConfig{
 		Server:   "localhost",
-		User:     "drone-scp",
+		User:     "test-user",
 		Port:     "22",
 		Password: "1234",
 		KeyPath:  "./tests/.ssh/id_rsa",
 	}
 
 	outStr, errStr, isTimeout, err := ssh.Run("whoami")
-	assert.Equal(t, "drone-scp\n", outStr)
+	assert.Equal(t, "test-user\n", outStr)
 	assert.Equal(t, "", errStr)
 	assert.True(t, isTimeout)
 	assert.NoError(t, err)
@@ -99,14 +99,14 @@ func TestPrivateKeyAndPassword(t *testing.T) {
 	// provide correct password and wrong private key
 	ssh = &MakeConfig{
 		Server:   "localhost",
-		User:     "drone-scp",
+		User:     "test-user",
 		Port:     "22",
 		Password: "1234",
 		KeyPath:  "./tests/.ssh/id_rsa.pub",
 	}
 
 	outStr, errStr, isTimeout, err = ssh.Run("whoami")
-	assert.Equal(t, "drone-scp\n", outStr)
+	assert.Equal(t, "test-user\n", outStr)
 	assert.Equal(t, "", errStr)
 	assert.True(t, isTimeout)
 	assert.NoError(t, err)
@@ -114,14 +114,14 @@ func TestPrivateKeyAndPassword(t *testing.T) {
 	// provide wrong password and correct private key
 	ssh = &MakeConfig{
 		Server:   "localhost",
-		User:     "drone-scp",
+		User:     "test-user",
 		Port:     "22",
 		Password: "123456",
 		KeyPath:  "./tests/.ssh/id_rsa",
 	}
 
 	outStr, errStr, isTimeout, err = ssh.Run("whoami")
-	assert.Equal(t, "drone-scp\n", outStr)
+	assert.Equal(t, "test-user\n", outStr)
 	assert.Equal(t, "", errStr)
 	assert.True(t, isTimeout)
 	assert.NoError(t, err)
@@ -131,7 +131,7 @@ func TestRunCommand(t *testing.T) {
 	// wrong key
 	ssh := &MakeConfig{
 		Server:  "localhost",
-		User:    "drone-scp",
+		User:    "test-user",
 		Port:    "22",
 		KeyPath: "./tests/.ssh/id_rsa.pub",
 	}
@@ -144,13 +144,13 @@ func TestRunCommand(t *testing.T) {
 
 	ssh = &MakeConfig{
 		Server:  "localhost",
-		User:    "drone-scp",
+		User:    "test-user",
 		Port:    "22",
 		KeyPath: "./tests/.ssh/id_rsa",
 	}
 
 	outStr, errStr, isTimeout, err = ssh.Run("whoami")
-	assert.Equal(t, "drone-scp\n", outStr)
+	assert.Equal(t, "test-user\n", outStr)
 	assert.Equal(t, "", errStr)
 	assert.True(t, isTimeout)
 	assert.NoError(t, err)
@@ -184,7 +184,7 @@ func TestSCPCommand(t *testing.T) {
 	// wrong key
 	ssh := &MakeConfig{
 		Server:  "localhost",
-		User:    "drone-scp",
+		User:    "test-user",
 		Port:    "22",
 		KeyPath: "./tests/.ssh/id_rsa.pub",
 	}
@@ -194,7 +194,7 @@ func TestSCPCommand(t *testing.T) {
 
 	ssh = &MakeConfig{
 		Server:  "localhost",
-		User:    "drone-scp",
+		User:    "test-user",
 		Port:    "22",
 		KeyPath: "./tests/.ssh/id_rsa",
 	}
@@ -202,7 +202,7 @@ func TestSCPCommand(t *testing.T) {
 	err = ssh.Scp("./tests/a.txt", "a.txt")
 	assert.NoError(t, err)
 
-	u, err := user.Lookup("drone-scp")
+	u, err := user.Lookup("test-user")
 	if err != nil {
 		t.Fatalf("Lookup: %v", err)
 	}
@@ -216,7 +216,7 @@ func TestSCPCommand(t *testing.T) {
 func TestSCPCommandWithKey(t *testing.T) {
 	ssh := &MakeConfig{
 		Server: "localhost",
-		User:   "drone-scp",
+		User:   "test-user",
 		Port:   "22",
 		Key: `-----BEGIN RSA PRIVATE KEY-----
 MIIEpAIBAAKCAQEA4e2D/qPN08pzTac+a8ZmlP1ziJOXk45CynMPtva0rtK/RB26
@@ -259,7 +259,7 @@ ib4KbP5ovZlrjL++akMQ7V2fHzuQIFWnCkDA5c2ZAqzlM+ZN+HRG7gWur7Bt4XH1
 	err = ssh.Scp("./tests/a.txt", "a.txt")
 	assert.NoError(t, err)
 
-	u, err := user.Lookup("drone-scp")
+	u, err := user.Lookup("test-user")
 	if err != nil {
 		t.Fatalf("Lookup: %v", err)
 	}
@@ -273,11 +273,11 @@ ib4KbP5ovZlrjL++akMQ7V2fHzuQIFWnCkDA5c2ZAqzlM+ZN+HRG7gWur7Bt4XH1
 func TestProxyClient(t *testing.T) {
 	ssh := &MakeConfig{
 		Server:   "localhost",
-		User:     "drone-scp",
+		User:     "test-user",
 		Port:     "22",
 		Password: "1234",
 		Proxy: DefaultConfig{
-			User:     "drone-scp",
+			User:     "test-user",
 			Server:   "localhost",
 			Port:     "22",
 			Password: "123456",
@@ -293,11 +293,11 @@ func TestProxyClient(t *testing.T) {
 
 	ssh = &MakeConfig{
 		Server:   "www.che.ccu.edu.tw",
-		User:     "drone-scp",
+		User:     "test-user",
 		Port:     "228",
 		Password: "123456",
 		Proxy: DefaultConfig{
-			User:    "drone-scp",
+			User:    "test-user",
 			Server:  "localhost",
 			Port:    "22",
 			KeyPath: "./tests/.ssh/id_rsa",
@@ -312,11 +312,11 @@ func TestProxyClient(t *testing.T) {
 
 	ssh = &MakeConfig{
 		Server:   "localhost",
-		User:     "drone-scp",
+		User:     "test-user",
 		Port:     "22",
 		Password: "123456",
 		Proxy: DefaultConfig{
-			User:    "drone-scp",
+			User:    "test-user",
 			Server:  "localhost",
 			Port:    "22",
 			KeyPath: "./tests/.ssh/id_rsa",
@@ -330,12 +330,12 @@ func TestProxyClient(t *testing.T) {
 	assert.Error(t, err)
 
 	ssh = &MakeConfig{
-		User:    "drone-scp",
+		User:    "test-user",
 		Server:  "localhost",
 		Port:    "22",
 		KeyPath: "./tests/.ssh/id_rsa",
 		Proxy: DefaultConfig{
-			User:    "drone-scp",
+			User:    "test-user",
 			Server:  "localhost",
 			Port:    "22",
 			KeyPath: "./tests/.ssh/id_rsa",
@@ -350,12 +350,12 @@ func TestProxyClient(t *testing.T) {
 
 func TestProxyClientSSHCommand(t *testing.T) {
 	ssh := &MakeConfig{
-		User:    "drone-scp",
+		User:    "test-user",
 		Server:  "localhost",
 		Port:    "22",
 		KeyPath: "./tests/.ssh/id_rsa",
 		Proxy: DefaultConfig{
-			User:    "drone-scp",
+			User:    "test-user",
 			Server:  "localhost",
 			Port:    "22",
 			KeyPath: "./tests/.ssh/id_rsa",
@@ -363,7 +363,7 @@ func TestProxyClientSSHCommand(t *testing.T) {
 	}
 
 	outStr, errStr, isTimeout, err := ssh.Run("whoami")
-	assert.Equal(t, "drone-scp\n", outStr)
+	assert.Equal(t, "test-user\n", outStr)
 	assert.Equal(t, "", errStr)
 	assert.True(t, isTimeout)
 	assert.NoError(t, err)
@@ -372,7 +372,7 @@ func TestProxyClientSSHCommand(t *testing.T) {
 func TestSCPCommandWithPassword(t *testing.T) {
 	ssh := &MakeConfig{
 		Server:   "localhost",
-		User:     "drone-scp",
+		User:     "test-user",
 		Port:     "22",
 		Password: "1234",
 		Timeout:  60 * time.Second,
@@ -381,7 +381,7 @@ func TestSCPCommandWithPassword(t *testing.T) {
 	err := ssh.Scp("./tests/b.txt", "b.txt")
 	assert.NoError(t, err)
 
-	u, err := user.Lookup("drone-scp")
+	u, err := user.Lookup("test-user")
 	if err != nil {
 		t.Fatalf("Lookup: %v", err)
 	}
@@ -396,7 +396,7 @@ func TestWrongRawKey(t *testing.T) {
 	// wrong key
 	ssh := &MakeConfig{
 		Server: "localhost",
-		User:   "drone-scp",
+		User:   "test-user",
 		Port:   "22",
 		Key:    "wrongkey",
 	}
@@ -411,7 +411,7 @@ func TestWrongRawKey(t *testing.T) {
 func TestExitCode(t *testing.T) {
 	ssh := &MakeConfig{
 		Server:  "localhost",
-		User:    "drone-scp",
+		User:    "test-user",
 		Port:    "22",
 		KeyPath: "./tests/.ssh/id_rsa",
 		Timeout: 60 * time.Second,
@@ -427,7 +427,7 @@ func TestExitCode(t *testing.T) {
 func TestSSHWithPassphrase(t *testing.T) {
 	ssh := &MakeConfig{
 		Server:     "localhost",
-		User:       "drone-scp",
+		User:       "test-user",
 		Port:       "22",
 		KeyPath:    "./tests/.ssh/test",
 		Passphrase: "1234",
@@ -444,7 +444,7 @@ func TestSSHWithPassphrase(t *testing.T) {
 func TestSCPCommandUseInsecureCipher(t *testing.T) {
 	ssh := &MakeConfig{
 		Server:            "localhost",
-		User:              "drone-scp",
+		User:              "test-user",
 		Port:              "22",
 		KeyPath:           "./tests/.ssh/id_rsa",
 		UseInsecureCipher: true,
@@ -453,7 +453,7 @@ func TestSCPCommandUseInsecureCipher(t *testing.T) {
 	err := ssh.Scp("./tests/a.txt", "a.txt")
 	assert.NoError(t, err)
 
-	u, err := user.Lookup("drone-scp")
+	u, err := user.Lookup("test-user")
 	if err != nil {
 		t.Fatalf("Lookup: %v", err)
 	}
@@ -484,7 +484,7 @@ func TestRootAccount(t *testing.T) {
 func TestSudoCommand(t *testing.T) {
 	ssh := &MakeConfig{
 		Server:     "localhost",
-		User:       "drone-scp",
+		User:       "test-user",
 		Port:       "22",
 		KeyPath:    "./tests/.ssh/id_rsa",
 		RequestPty: true,

@@ -43,7 +43,7 @@ All functionality provided by this package is accessed via methods of the MakeCo
 
 ```go
   ssh := &easyssh.MakeConfig{
-    User:    "drone-scp",
+    User:    "test-user",
     Server:  "localhost",
     KeyPath: "./tests/.ssh/id_rsa",
     Port:    "22",
@@ -355,7 +355,7 @@ See [examples/proxy/proxy.go](./_examples/proxy/proxy.go)
     KeyPath: "./tests/.ssh/id_rsa",
     Timeout: 60 * time.Second,
     Proxy: easyssh.DefaultConfig{
-      User:    "drone-scp",
+      User:    "test-user",
       Server:  "localhost",
       Port:    "22",
       KeyPath: "./tests/.ssh/id_rsa",
@@ -377,7 +377,7 @@ func main() {
   // Create MakeConfig instance with remote username, server address and path to private key.
   ssh := &easyssh.MakeConfig{
     Server:  "localhost",
-    User:    "drone-scp",
+    User:    "test-user",
     KeyPath: "./tests/.ssh/id_rsa",
     Port:    "22",
     Timeout: 60 * time.Second,
