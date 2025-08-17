@@ -18,6 +18,7 @@ This project is forked from [easyssh](https://github.com/hypersleep/easyssh) but
 - [x] Support key path of user private key.
 - [x] Support Timeout for the TCP connection to establish.
 - [x] Support SSH ProxyCommand.
+- [x] Support SFTP file transfer operations.
 
 ```bash
      +--------+       +----------+      +-----------+
@@ -34,7 +35,7 @@ This project is forked from [easyssh](https://github.com/hypersleep/easyssh) but
 
 ## Usage
 
-You can see detailed examples of the `ssh`, `scp`, `Proxy`, and `stream` commands inside the [`examples`](./_examples/) folder.
+You can see detailed examples of the `ssh`, `scp`, `sftp`, `Proxy`, and `stream` commands inside the [`examples`](./_examples/) folder.
 
 ### MakeConfig
 
@@ -51,6 +52,7 @@ All functionality provided by this package is accessed via methods of the MakeCo
 
   stdout, stderr, done, err := ssh.Run("ls -al", 60*time.Second)
   err = ssh.Scp("/root/source.csv", "/tmp/target.csv")
+  err = ssh.SftpUpload("/local/file.txt", "/remote/file.txt")
   stdoutChan, stderrChan, doneChan, errChan, err = ssh.Stream("for i in {1..5}; do echo ${i}; sleep 1; done; exit 2;", 60*time.Second)
 ```
 
@@ -170,6 +172,129 @@ func main() {
   }
 }
 ```
+
+### sftp
+
+See [examples/sftp/sftp.go](./_examples/sftp/sftp.go)
+
+SFTP (SSH File Transfer Protocol) provides secure file transfer capabilities over SSH. The easyssh-proxy library supports comprehensive SFTP operations including file upload/download, directory management, and file permissions.
+
+```go
+package main
+
+import (
+  "fmt"
+  "log"
+  "os"
+  "time"
+
+  "github.com/appleboy/easyssh-proxy"
+)
+
+func main() {
+  // Create MakeConfig instance with remote username, server address and path to private key.
+  ssh := &easyssh.MakeConfig{
+    User:   "appleboy",
+    Server: "example.com",
+    KeyPath: "/Users/username/.ssh/id_rsa",
+    Port:    "22",
+    Timeout: 60 * time.Second,
+  }
+
+  // Upload a file using SFTP
+  err := ssh.SftpUpload("/local/path/source.txt", "/remote/path/target.txt")
+  if err != nil {
+    log.Printf("SFTP Upload failed: %v", err)
+  } else {
+    fmt.Println("SFTP Upload successful!")
+  }
+
+  // Download a file using SFTP
+  err = ssh.SftpDownload("/remote/path/source.txt", "/local/path/downloaded.txt")
+  if err != nil {
+    log.Printf("SFTP Download failed: %v", err)
+  } else {
+    fmt.Println("SFTP Download successful!")
+  }
+
+  // List directory contents
+  fileInfos, err := ssh.SftpList("/remote/directory")
+  if err != nil {
+    log.Printf("SFTP List failed: %v", err)
+  } else {
+    fmt.Printf("Found %d items in directory:\n", len(fileInfos))
+    for _, info := range fileInfos {
+      fmt.Printf("  %s (size: %d, mode: %s)\n",
+        info.Name(), info.Size(), info.Mode())
+    }
+  }
+
+  // Create a directory
+  err = ssh.SftpMkdir("/remote/new_directory")
+  if err != nil {
+    log.Printf("SFTP Mkdir failed: %v", err)
+  }
+
+  // Create directories recursively
+  err = ssh.SftpMkdirAll("/remote/path/to/nested/directory")
+  if err != nil {
+    log.Printf("SFTP MkdirAll failed: %v", err)
+  }
+
+  // Get file information
+  fileInfo, err := ssh.SftpStat("/remote/path/file.txt")
+  if err != nil {
+    log.Printf("SFTP Stat failed: %v", err)
+  } else {
+    fmt.Printf("File info: %s (size: %d, mode: %s)\n",
+      fileInfo.Name(), fileInfo.Size(), fileInfo.Mode())
+  }
+
+  // Change file permissions
+  err = ssh.SftpChmod("/remote/path/file.txt", 0644)
+  if err != nil {
+    log.Printf("SFTP Chmod failed: %v", err)
+  }
+
+  // Remove a file
+  err = ssh.SftpRemove("/remote/path/file_to_delete.txt")
+  if err != nil {
+    log.Printf("SFTP Remove failed: %v", err)
+  }
+
+  // Working with SFTP client directly for advanced operations
+  sftpClient, client, err := ssh.SftpClient()
+  if err != nil {
+    log.Printf("SFTP Client creation failed: %v", err)
+    return
+  }
+  defer client.Close()
+  defer sftpClient.Close()
+
+  // Advanced operations with direct client access
+  file, err := sftpClient.OpenFile("/remote/path/file.txt", os.O_RDWR|os.O_CREATE)
+  if err != nil {
+    log.Printf("SFTP OpenFile failed: %v", err)
+  } else {
+    defer file.Close()
+    file.Write([]byte("Hello from SFTP!\n"))
+  }
+}
+```
+
+#### Available SFTP Methods
+
+| Method | Description |
+|--------|-------------|
+| `SftpClient()` | Creates and returns an SFTP client for advanced operations |
+| `SftpUpload(localPath, remotePath)` | Uploads a local file to remote server |
+| `SftpDownload(remotePath, localPath)` | Downloads a remote file to local machine |
+| `SftpList(remotePath)` | Lists files and directories in the specified remote path |
+| `SftpMkdir(remotePath)` | Creates a directory on the remote server |
+| `SftpMkdirAll(remotePath)` | Creates a directory and all necessary parent directories |
+| `SftpRemove(remotePath)` | Removes a file or directory from the remote server |
+| `SftpStat(remotePath)` | Returns file information for the specified remote path |
+| `SftpChmod(remotePath, mode)` | Changes the permissions of a file or directory |
 
 ### SSH ProxyCommand
 

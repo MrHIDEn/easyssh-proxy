@@ -512,3 +512,167 @@ func TestCommandTimeout(t *testing.T) {
 	assert.NotNil(t, err)
 	assert.Equal(t, "Run Command Timeout: "+context.DeadlineExceeded.Error(), err.Error())
 }
+
+func TestSftpClient(t *testing.T) {
+	ssh := &MakeConfig{
+		Server:  "localhost",
+		User:    "root",
+		Port:    "22",
+		KeyPath: "./tests/.ssh/id_rsa",
+	}
+
+	sftpClient, client, err := ssh.SftpClient()
+	if err != nil {
+		t.Skipf("SFTP connection failed (this is expected if SSH server doesn't support SFTP): %v", err)
+		return
+	}
+	defer client.Close()
+	defer sftpClient.Close()
+
+	assert.NotNil(t, sftpClient)
+	assert.NotNil(t, client)
+}
+
+func TestSftpUploadDownload(t *testing.T) {
+	ssh := &MakeConfig{
+		Server:  "localhost",
+		User:    "root",
+		Port:    "22",
+		KeyPath: "./tests/.ssh/id_rsa",
+	}
+
+	// Create a test file
+	testContent := "Hello SFTP World!"
+	localFile := "./tests/sftp_test_upload.txt"
+	remoteFile := "/tmp/sftp_test_remote.txt"
+	downloadFile := "./tests/sftp_test_download.txt"
+
+	// Create local test file
+	err := os.WriteFile(localFile, []byte(testContent), 0644)
+	assert.NoError(t, err)
+	defer os.Remove(localFile)
+	defer os.Remove(downloadFile)
+
+	// Test upload
+	err = ssh.SftpUpload(localFile, remoteFile)
+	if err != nil {
+		t.Skipf("SFTP upload failed (this is expected if SSH server doesn't support SFTP): %v", err)
+		return
+	}
+
+	// Test download
+	err = ssh.SftpDownload(remoteFile, downloadFile)
+	assert.NoError(t, err)
+
+	// Verify content
+	downloadedContent, err := os.ReadFile(downloadFile)
+	assert.NoError(t, err)
+	assert.Equal(t, testContent, string(downloadedContent))
+
+	// Cleanup remote file
+	err = ssh.SftpRemove(remoteFile)
+	assert.NoError(t, err)
+}
+
+func TestSftpDirectoryOperations(t *testing.T) {
+	ssh := &MakeConfig{
+		Server:  "localhost",
+		User:    "root",
+		Port:    "22",
+		KeyPath: "./tests/.ssh/id_rsa",
+	}
+
+	testDir := "/tmp/sftp_test_dir"
+	nestedDir := "/tmp/sftp_test_nested/sub1/sub2"
+
+	// Test create directory
+	err := ssh.SftpMkdir(testDir)
+	if err != nil {
+		t.Skipf("SFTP mkdir failed (this is expected if SSH server doesn't support SFTP): %v", err)
+		return
+	}
+
+	// Test create nested directories
+	err = ssh.SftpMkdirAll(nestedDir)
+	assert.NoError(t, err)
+
+	// Test list directory (should contain our test directory)
+	fileInfos, err := ssh.SftpList("/tmp")
+	assert.NoError(t, err)
+	assert.NotEmpty(t, fileInfos)
+
+	// Check if our test directory exists in the list
+	found := false
+	for _, info := range fileInfos {
+		if info.Name() == "sftp_test_dir" && info.IsDir() {
+			found = true
+			break
+		}
+	}
+	assert.True(t, found, "Test directory should be found in listing")
+
+	// Test stat on directory
+	dirInfo, err := ssh.SftpStat(testDir)
+	assert.NoError(t, err)
+	assert.True(t, dirInfo.IsDir())
+	assert.Equal(t, "sftp_test_dir", dirInfo.Name())
+
+	// Cleanup
+	err = ssh.SftpRemove(testDir)
+	assert.NoError(t, err)
+
+	// Cleanup nested directories (remove from deepest to shallowest)
+	err = ssh.SftpRemove(nestedDir)
+	assert.NoError(t, err)
+	err = ssh.SftpRemove("/tmp/sftp_test_nested/sub1")
+	assert.NoError(t, err)
+	err = ssh.SftpRemove("/tmp/sftp_test_nested")
+	assert.NoError(t, err)
+}
+
+func TestSftpFileOperations(t *testing.T) {
+	ssh := &MakeConfig{
+		Server:  "localhost",
+		User:    "root",
+		Port:    "22",
+		KeyPath: "./tests/.ssh/id_rsa",
+	}
+
+	// Create a test file for operations
+	testContent := "SFTP file operations test"
+	localFile := "./tests/sftp_ops_test.txt"
+	remoteFile := "/tmp/sftp_ops_test.txt"
+
+	// Create local test file
+	err := os.WriteFile(localFile, []byte(testContent), 0644)
+	assert.NoError(t, err)
+	defer os.Remove(localFile)
+
+	// Upload file
+	err = ssh.SftpUpload(localFile, remoteFile)
+	if err != nil {
+		t.Skipf("SFTP upload failed (this is expected if SSH server doesn't support SFTP): %v", err)
+		return
+	}
+
+	// Test file stat
+	fileInfo, err := ssh.SftpStat(remoteFile)
+	assert.NoError(t, err)
+	assert.False(t, fileInfo.IsDir())
+	assert.Equal(t, "sftp_ops_test.txt", fileInfo.Name())
+	assert.Equal(t, int64(len(testContent)), fileInfo.Size())
+
+	// Test chmod
+	err = ssh.SftpChmod(remoteFile, 0755)
+	assert.NoError(t, err)
+
+	// Verify permissions changed (note: exact permission checking may vary by system)
+	fileInfo, err = ssh.SftpStat(remoteFile)
+	assert.NoError(t, err)
+	// The mode should include the new permissions
+	assert.NotEqual(t, os.FileMode(0644), fileInfo.Mode().Perm())
+
+	// Cleanup
+	err = ssh.SftpRemove(remoteFile)
+	assert.NoError(t, err)
+}

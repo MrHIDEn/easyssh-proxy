@@ -19,6 +19,7 @@ import (
 	"time"
 
 	"github.com/ScaleFT/sshkeys"
+	"github.com/pkg/sftp"
 	"golang.org/x/crypto/ssh"
 	"golang.org/x/crypto/ssh/agent"
 )
@@ -516,4 +517,170 @@ func (ssh_conf *MakeConfig) Scp(sourceFile string, etargetFile string) error {
 		return statErr
 	}
 	return ssh_conf.WriteFile(src, srcStat.Size(), etargetFile)
+}
+
+// SftpClient creates and returns an SFTP client connection
+func (ssh_conf *MakeConfig) SftpClient() (*sftp.Client, *ssh.Client, error) {
+	// Connect to SSH server
+	_, client, err := ssh_conf.Connect()
+	if err != nil {
+		return nil, nil, err
+	}
+
+	// Create SFTP client
+	sftpClient, err := sftp.NewClient(client)
+	if err != nil {
+		client.Close()
+		return nil, nil, err
+	}
+
+	return sftpClient, client, nil
+}
+
+// SftpUpload uploads a local file to remote server via SFTP
+func (ssh_conf *MakeConfig) SftpUpload(localPath, remotePath string) error {
+	sftpClient, client, err := ssh_conf.SftpClient()
+	if err != nil {
+		return err
+	}
+	defer client.Close()
+	defer sftpClient.Close()
+
+	// Open local file
+	localFile, err := os.Open(localPath)
+	if err != nil {
+		return err
+	}
+	defer localFile.Close()
+
+	// Create remote file
+	remoteFile, err := sftpClient.Create(remotePath)
+	if err != nil {
+		return err
+	}
+	defer remoteFile.Close()
+
+	// Copy file content
+	_, err = io.Copy(remoteFile, localFile)
+	return err
+}
+
+// SftpDownload downloads a remote file to local machine via SFTP
+func (ssh_conf *MakeConfig) SftpDownload(remotePath, localPath string) error {
+	sftpClient, client, err := ssh_conf.SftpClient()
+	if err != nil {
+		return err
+	}
+	defer client.Close()
+	defer sftpClient.Close()
+
+	// Open remote file
+	remoteFile, err := sftpClient.Open(remotePath)
+	if err != nil {
+		return err
+	}
+	defer remoteFile.Close()
+
+	// Create local file
+	localFile, err := os.Create(localPath)
+	if err != nil {
+		return err
+	}
+	defer localFile.Close()
+
+	// Copy file content
+	_, err = io.Copy(localFile, remoteFile)
+	return err
+}
+
+// SftpList lists files and directories in the specified remote path
+func (ssh_conf *MakeConfig) SftpList(remotePath string) ([]os.FileInfo, error) {
+	sftpClient, client, err := ssh_conf.SftpClient()
+	if err != nil {
+		return nil, err
+	}
+	defer client.Close()
+	defer sftpClient.Close()
+
+	// List directory contents
+	fileInfos, err := sftpClient.ReadDir(remotePath)
+	if err != nil {
+		return nil, err
+	}
+
+	return fileInfos, nil
+}
+
+// SftpMkdir creates a directory on the remote server
+func (ssh_conf *MakeConfig) SftpMkdir(remotePath string) error {
+	sftpClient, client, err := ssh_conf.SftpClient()
+	if err != nil {
+		return err
+	}
+	defer client.Close()
+	defer sftpClient.Close()
+
+	// Create directory
+	err = sftpClient.Mkdir(remotePath)
+	return err
+}
+
+// SftpMkdirAll creates a directory and all necessary parent directories
+func (ssh_conf *MakeConfig) SftpMkdirAll(remotePath string) error {
+	sftpClient, client, err := ssh_conf.SftpClient()
+	if err != nil {
+		return err
+	}
+	defer client.Close()
+	defer sftpClient.Close()
+
+	// Create directory recursively
+	err = sftpClient.MkdirAll(remotePath)
+	return err
+}
+
+// SftpRemove removes a file or directory from the remote server
+func (ssh_conf *MakeConfig) SftpRemove(remotePath string) error {
+	sftpClient, client, err := ssh_conf.SftpClient()
+	if err != nil {
+		return err
+	}
+	defer client.Close()
+	defer sftpClient.Close()
+
+	// Remove file or directory
+	err = sftpClient.Remove(remotePath)
+	return err
+}
+
+// SftpStat returns file information for the specified remote path
+func (ssh_conf *MakeConfig) SftpStat(remotePath string) (os.FileInfo, error) {
+	sftpClient, client, err := ssh_conf.SftpClient()
+	if err != nil {
+		return nil, err
+	}
+	defer client.Close()
+	defer sftpClient.Close()
+
+	// Get file information
+	fileInfo, err := sftpClient.Stat(remotePath)
+	if err != nil {
+		return nil, err
+	}
+
+	return fileInfo, nil
+}
+
+// SftpChmod changes the permissions of a file or directory on the remote server
+func (ssh_conf *MakeConfig) SftpChmod(remotePath string, mode os.FileMode) error {
+	sftpClient, client, err := ssh_conf.SftpClient()
+	if err != nil {
+		return err
+	}
+	defer client.Close()
+	defer sftpClient.Close()
+
+	// Change file permissions
+	err = sftpClient.Chmod(remotePath, mode)
+	return err
 }
