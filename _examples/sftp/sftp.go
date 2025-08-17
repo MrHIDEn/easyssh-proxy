@@ -95,7 +95,7 @@ func main() {
 
 	// Example 7: Change file permissions
 	fmt.Println("\n=== SFTP Change Permissions Example ===")
-	err = ssh.SftpChmod("/remote/path/file.txt", 0644)
+	err = ssh.SftpChmod("/remote/path/file.txt", 0o644)
 	if err != nil {
 		log.Printf("SFTP Chmod failed: %v", err)
 	} else {

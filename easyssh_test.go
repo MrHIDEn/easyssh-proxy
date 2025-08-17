@@ -548,7 +548,7 @@ func TestSftpUploadDownload(t *testing.T) {
 	downloadFile := "./tests/sftp_test_download.txt"
 
 	// Create local test file
-	err := os.WriteFile(localFile, []byte(testContent), 0644)
+	err := os.WriteFile(localFile, []byte(testContent), 0o644)
 	assert.NoError(t, err)
 	defer os.Remove(localFile)
 	defer os.Remove(downloadFile)
@@ -644,7 +644,7 @@ func TestSftpFileOperations(t *testing.T) {
 	remoteFile := "/tmp/sftp_ops_test.txt"
 
 	// Create local test file
-	err := os.WriteFile(localFile, []byte(testContent), 0644)
+	err := os.WriteFile(localFile, []byte(testContent), 0o644)
 	assert.NoError(t, err)
 	defer os.Remove(localFile)
 
@@ -663,14 +663,14 @@ func TestSftpFileOperations(t *testing.T) {
 	assert.Equal(t, int64(len(testContent)), fileInfo.Size())
 
 	// Test chmod
-	err = ssh.SftpChmod(remoteFile, 0755)
+	err = ssh.SftpChmod(remoteFile, 0o755)
 	assert.NoError(t, err)
 
 	// Verify permissions changed (note: exact permission checking may vary by system)
 	fileInfo, err = ssh.SftpStat(remoteFile)
 	assert.NoError(t, err)
 	// The mode should include the new permissions
-	assert.NotEqual(t, os.FileMode(0644), fileInfo.Mode().Perm())
+	assert.NotEqual(t, os.FileMode(0o644), fileInfo.Mode().Perm())
 
 	// Cleanup
 	err = ssh.SftpRemove(remoteFile)
