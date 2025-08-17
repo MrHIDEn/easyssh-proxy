@@ -9,9 +9,11 @@ echo "--- Running tests in Podman container ---"
 # Detect operating system for correct path mapping
 if [ -n "$WINDIR" ]; then
   # On Windows (in Git Bash/WSL), get the path using cmd.exe
+  echo "--- Windows detected ---"
   CURRENT_DIR=$(pwsh -NoProfile -Command '(Get-Location).Path')
 else
   # On macOS or Linux, use the standard `pwd`
+  echo "--- macOS or Linux detected ---"
   CURRENT_DIR=$(pwd)
 fi
 
