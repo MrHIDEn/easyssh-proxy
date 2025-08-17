@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 
-	"github.com/appleboy/easyssh-proxy"
+	"github.com/MrHIDEn/easyssh-proxy"
 )
 
 func main() {
@@ -16,7 +16,7 @@ func main() {
 	}
 
 	// Call Scp method with file you want to upload to remote server.
-	// Please make sure the `tmp` floder exists.
+	// Please make sure the `tmp` folder exists.
 	err := ssh.Scp("/root/source.csv", "/tmp/target.csv")
 	// Handle errors
 	if err != nil {

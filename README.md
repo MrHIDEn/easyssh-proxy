@@ -1,14 +1,14 @@
 # easyssh-proxy
 
-[![GoDoc](https://godoc.org/github.com/appleboy/easyssh-proxy?status.svg)](https://pkg.go.dev/github.com/appleboy/easyssh-proxy)
-[![Lint and Testing](https://github.com/appleboy/easyssh-proxy/actions/workflows/testing.yml/badge.svg)](https://github.com/appleboy/easyssh-proxy/actions/workflows/testing.yml)
-[![codecov](https://codecov.io/gh/appleboy/easyssh-proxy/branch/master/graph/badge.svg)](https://codecov.io/gh/appleboy/easyssh-proxy)
-[![Go Report Card](https://goreportcard.com/badge/github.com/appleboy/easyssh-proxy)](https://goreportcard.com/report/github.com/appleboy/easyssh-proxy)
-[![Sourcegraph](https://sourcegraph.com/github.com/appleboy/easyssh-proxy/-/badge.svg)](https://sourcegraph.com/github.com/appleboy/easyssh-proxy?badge)
-
-[繁體中文](./README.zh-tw.md)
+[![GoDoc](https://pkg.go.dev/github.com/MrHIDEn/easyssh-proxy?status.svg)](https://pkg.go.dev/github.com/MrHIDEn/easyssh-proxy)
+[![Lint and Testing](https://github.com/MrHIDEn/easyssh-proxy/actions/workflows/testing.yml/badge.svg)](https://github.com/MrHIDEn/easyssh-proxy/actions/workflows/testing.yml)
+[![codecov](https://codecov.io/gh/MrHIDEn/easyssh-proxy/branch/master/graph/badge.svg)](https://codecov.io/gh/MrHIDEn/easyssh-proxy)
+[![Go Report Card](https://goreportcard.com/badge/github.com/MrHIDEn/easyssh-proxy)](https://goreportcard.com/report/github.com/MrHIDEn/easyssh-proxy)
+[![Sourcegraph](https://sourcegraph.com/github.com/MrHIDEn/easyssh-proxy/-/badge.svg)](https://sourcegraph.com/github.com/MrHIDEn/easyssh-proxy?badge)
 
 easyssh-proxy provides a simple implementation of some SSH protocol features in Go.
+
+> **Note:** This project was originally forked from [github.com/appleboy/easyssh-proxy](https://github.com/appleboy/easyssh-proxy) and is now being developed independently.
 
 ## Feature
 
@@ -75,7 +75,7 @@ MakeConfig takes in the following properties:
 | Fingerprint       | The expected fingerprint to be returned by the SSH server, results in a fingerprint error if they do not match                                 |
 | UseInsecureCipher | Enables the use of insecure ciphers and key exchanges that are insecure and can lead to compromise, [see ssh](#ssh)                            |
 
-NOTE: Please view the reference documentation for the most up to date properties of [MakeConfig](https://pkg.go.dev/github.com/appleboy/easyssh-proxy#MakeConfig) and [DefaultConfig](https://pkg.go.dev/github.com/appleboy/easyssh-proxy#DefaultConfig)
+NOTE: Please view the reference documentation for the most up to date properties of [MakeConfig](https://pkg.go.dev/github.com/MrHIDEn/easyssh-proxy#MakeConfig) and [DefaultConfig](https://pkg.go.dev/github.com/MrHIDEn/easyssh-proxy#DefaultConfig)
 
 ### ssh
 
@@ -88,7 +88,7 @@ import (
   "fmt"
   "time"
 
-  "github.com/appleboy/easyssh-proxy"
+	"github.com/MrHIDEn/easyssh-proxy"
 )
 
 func main() {
@@ -148,7 +148,7 @@ package main
 import (
   "fmt"
 
-  "github.com/appleboy/easyssh-proxy"
+	"github.com/MrHIDEn/easyssh-proxy"
 )
 
 func main() {
@@ -161,7 +161,7 @@ func main() {
   }
 
   // Call Scp method with file you want to upload to remote server.
-  // Please make sure the `tmp` floder exists.
+  // Please make sure the `tmp` folder exists.
   err := ssh.Scp("/root/source.csv", "/tmp/target.csv")
 
   // Handle errors
@@ -188,7 +188,7 @@ import (
   "os"
   "time"
 
-  "github.com/appleboy/easyssh-proxy"
+	"github.com/MrHIDEn/easyssh-proxy"
 )
 
 func main() {

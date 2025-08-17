@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/appleboy/easyssh-proxy"
+	"github.com/MrHIDEn/easyssh-proxy"
 )
 
 func main() {

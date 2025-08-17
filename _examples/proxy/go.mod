@@ -1,8 +1,8 @@
-module example
+module github.com/MrHIDEn/easyssh-proxy/_examples/proxy
 
 go 1.23.0
 
-require github.com/appleboy/easyssh-proxy v1.5.0
+require github.com/MrHIDEn/easyssh-proxy v0.0.0
 
 require (
 	github.com/ScaleFT/sshkeys v1.4.0 // indirect
@@ -13,4 +13,4 @@ require (
 	golang.org/x/sys v0.35.0 // indirect
 )
 
-replace github.com/appleboy/easyssh-proxy v1.5.0 => ../../
+replace github.com/MrHIDEn/easyssh-proxy => ../../
